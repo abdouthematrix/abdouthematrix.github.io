@@ -25,6 +25,7 @@
   <input type="password" id="decryptPassword" placeholder="Enter password">
   <button onclick="decrypt()">Decrypt</button>
   <textarea id="decryptedText" placeholder="Decrypted text will appear here..."></textarea>
+  <button onclick="saveDecrypted()">💾 Save Decrypted as TXT</button>
 
   <script>
     async function encrypt() {
@@ -67,7 +68,7 @@
       const blob = new Blob([combined], { type: 'application/octet-stream' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = file.name.replace(/\.txt$/, '') + '.enc';
+      a.download = file.name.replace(/\.txt$/i, '') + '.enc';
       a.click();
     }
 
@@ -112,6 +113,19 @@
         output.value = '';
         alert('Decryption failed: wrong password or corrupted file.');
       }
+    }
+
+    function saveDecrypted() {
+      const text = document.getElementById('decryptedText').value;
+      if (!text) {
+        alert('Nothing to save. Decrypt a file first.');
+        return;
+      }
+      const blob = new Blob([text], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'decrypted.txt';
+      a.click();
     }
   </script>
 </body>
