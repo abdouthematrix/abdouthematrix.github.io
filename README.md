@@ -32,7 +32,6 @@ I love understanding how systems work and making them better. That curiosity is 
 | [BMToolkit](https://github.com/abdouthematrix/BMToolkit) | Financial calculator for secured/unsecured loans | — |
 | [BMATM](https://github.com/abdouthematrix/BMATM) | Tool to manage ATM operations and cash reconciliation | — |
 | [WestCairoRegionStars](https://github.com/abdouthematrix/WestCairoRegionStars) | Firebase-based leaderboard for teams | [Live Preview](https://abdouthematrix.github.io/WestCairoRegionStars/) |
-| [WestCairoStars](https://github.com/abdouthematrix/WestCairoStars) | Firebase-based leaderboard for teams | [Live Preview](https://abdouthematrix.github.io/WestCairoStars/) |
 | [WhatsApp UI](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/WhatsApp.html) | Web layout recreation of WhatsApp chat UI | [Live Preview](https://abdouthematrix.github.io/WhatsApp.html) |
 | [Encrypt/Decrypt Tool](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/encdec.html) | Simple HTML+JS tool to encrypt/decrypt text | [Live Preview](https://abdouthematrix.github.io/encdec.html) |
 
