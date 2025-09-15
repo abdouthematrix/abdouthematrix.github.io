@@ -30,6 +30,7 @@ I love understanding how systems work and making them better. That curiosity is 
 | Project | Description | Preview |
 |--------|-------------|---------|
 | [BMToolkit](https://github.com/abdouthematrix/BMToolkit) | Financial calculator for secured/unsecured loans | — |
+| [Investment and Loan Scenarios](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/sloan.html) |Investment and Loan Scenarios | [Live Preview](https://abdouthematrix.github.io/sloan.html) |
 | [BMATM](https://github.com/abdouthematrix/BMATM) | Tool to manage ATM operations and cash reconciliation | — |
 | [WestCairoRegionStars](https://github.com/abdouthematrix/WestCairoRegionStars) | Firebase-based leaderboard for teams | [Live Preview](https://abdouthematrix.github.io/WestCairoRegionStars/) |
 | [WhatsApp UI](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/WhatsApp.html) | Web layout recreation of WhatsApp chat UI | [Live Preview](https://abdouthematrix.github.io/WhatsApp.html) |
