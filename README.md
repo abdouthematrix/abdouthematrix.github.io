@@ -40,11 +40,11 @@ I specialize in:
 | Project | Description | Live |
 |--------|-------------|------|
 | **[BMToolkit](https://github.com/abdouthematrix/BMToolkit)** | Financial calculator for secured/unsecured loans | [🔗](https://abdouthematrix.github.io/BMToolkit) |
-| **[Investment & Loan Scenarios](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/sloan.html)** | Interactive financial simulation | [🔗](https://abdouthematrix.github.io/sloan.html) |
+| **[Investment & Loan Scenarios](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/Utils/sloan.html)** | Interactive financial simulation | [🔗](https://abdouthematrix.github.io/Utils/sloan.html) |
 | **[AIn-Web](https://github.com/abdouthematrix/AIn-Web)** | Attendance & workforce management system (PWA) | [🔗](https://abdouthematrix.github.io/AIn-Web) |
 | **[WestCairoRegionStars](https://github.com/abdouthematrix/WestCairoRegionStars)** | Firebase-based leaderboard for teams | [🔗](https://abdouthematrix.github.io/WestCairoRegionStars/) |
-| **[WhatsApp UI](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/WhatsApp.html)** | WhatsApp chat UI simulation (HTML+CSS) | [🔗](https://abdouthematrix.github.io/WhatsApp.html) |
-| **[Encrypt/Decrypt Tool](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/encdec.html)** | Simple HTML+JS encryption tool | [🔗](https://abdouthematrix.github.io/encdec.html) |
+| **[WhatsApp UI](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/Utils/WhatsApp.html)** | WhatsApp chat UI simulation (HTML+CSS) | [🔗](https://abdouthematrix.github.io/Utils/WhatsApp.html) |
+| **[Encrypt/Decrypt Tool](https://github.com/abdouthematrix/abdouthematrix.github.io/blob/main/Utils/encdec.html)** | Simple HTML+JS encryption tool | [🔗](https://abdouthematrix.github.io/Utils/encdec.html) |
 
 ---
 
