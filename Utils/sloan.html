@@ -65,7 +65,7 @@ function getUrlParams() {
   const params = new URLSearchParams(window.location.search);
   return {
     tdAmount: params.has("tdAmount") ? Number(params.get("tdAmount")) : 100000,
-    tdRate: params.has("tdRate") ? Number(params.get("tdRate")) : 16a,
+    tdRate: params.has("tdRate") ? Number(params.get("tdRate")) : 16,
     years: params.has("years") ? Number(params.get("years")) : 3
   };
 }
