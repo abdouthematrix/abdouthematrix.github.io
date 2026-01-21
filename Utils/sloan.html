@@ -33,7 +33,7 @@ th {background:#f1f5f9;}
   <div class="subtitle">جميع الأرقام لمدة <span id="yearsLabel"></span> سنوات — بالجنيه المصري (ج.م)</div>
   <div style="margin-top:10px;">
     قيمة الشهادة: <input type="number" id="tdAmount" value="100000"> &nbsp;
-    العائد السنوي (%): <input type="number" id="tdRate" value="17" step="0.01"> &nbsp;
+    العائد السنوي (%): <input type="number" id="tdRate" value="16" step="0.01"> &nbsp;
     مدة الاستثمار: <input type="number" id="years" value="3"> سنوات &nbsp;
     <button onclick="render()">حساب</button>
     <button onclick="generateUrl()">نسخ الرابط</button>
@@ -65,7 +65,7 @@ function getUrlParams() {
   const params = new URLSearchParams(window.location.search);
   return {
     tdAmount: params.has("tdAmount") ? Number(params.get("tdAmount")) : 100000,
-    tdRate: params.has("tdRate") ? Number(params.get("tdRate")) : 17,
+    tdRate: params.has("tdRate") ? Number(params.get("tdRate")) : 16a,
     years: params.has("years") ? Number(params.get("years")) : 3
   };
 }
@@ -88,7 +88,7 @@ function calculateScenario(tdAmount, tdRate, years, loanPercent=0, reinvest=fals
   const totalCertInterest = tdAmount*tdRate*years;
 
   let loan = roundTo100(tdAmount*loanPercent/100);
-  const loanAnnualRate = Math.max(tdRate+0.02,0.20);
+  const loanAnnualRate = Math.max(tdRate+0.02,0.18);
   const monthlyLoanRate = loanAnnualRate/12;
   const monthlyInstallment = loan>0 ? PMT(monthlyLoanRate, months, loan) : 0;
   const loanInterest = (monthlyInstallment*months) - loan;
