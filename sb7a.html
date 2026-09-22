@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>السبحة الإلكترونية</title>
+<style>
+  :root{
+    --bg-1:#0b1f1c;
+    --bg-2:#123128;
+    --gold:#c9a24b;
+    --gold-soft:#e6cf8a;
+    --ink:#f3ecd9;
+    --ink-dim:#b9c9bf;
+    --card:#0f2a24;
+    --card-line:rgba(201,162,75,.25);
+    --done:#3f8f6d;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    height:100%;
+    margin:0;
+  }
+  body{
+    min-height:100%;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #16382f 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    color:var(--ink);
+    font-family: "Segoe UI", Tahoma, "Geeza Pro", "Amiri", serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .pattern{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.06;
+    background-image:
+      repeating-linear-gradient(45deg, var(--gold) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(-45deg, var(--gold) 0 1px, transparent 1px 40px);
+  }
+
+  header{
+    width:100%;
+    max-width:520px;
+    text-align:center;
+    padding:28px 20px 10px;
+    z-index:1;
+  }
+  header h1{
+    font-size:1.5rem;
+    margin:0 0 4px;
+    color:var(--gold-soft);
+    letter-spacing:.5px;
+    font-weight:600;
+  }
+  header p{
+    margin:0;
+    color:var(--ink-dim);
+    font-size:.9rem;
+  }
+
+  main{
+    width:100%;
+    max-width:520px;
+    padding:14px 16px 40px;
+    z-index:1;
+  }
+
+  .total-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-radius:16px;
+    padding:14px 18px;
+    margin-bottom:18px;
+  }
+  .total-bar .label{
+    color:var(--ink-dim);
+    font-size:.85rem;
+  }
+  .total-bar .value{
+    color:var(--gold-soft);
+    font-size:1.6rem;
+    font-weight:700;
+  }
+  .reset-all{
+    background:none;
+    border:1px solid var(--card-line);
+    color:var(--ink-dim);
+    border-radius:10px;
+    padding:8px 12px;
+    font-size:.8rem;
+    cursor:pointer;
+  }
+  .reset-all:active{transform:scale(.96);}
+
+  .dhikr-card{
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-radius:18px;
+    padding:18px 18px 16px;
+    margin-bottom:16px;
+    transition:border-color .3s, box-shadow .3s;
+  }
+  .dhikr-card.complete{
+    border-color:var(--done);
+    box-shadow:0 0 0 1px var(--done) inset, 0 8px 24px -12px rgba(63,143,109,.6);
+  }
+
+  .dhikr-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .dhikr-name{
+    font-size:1.15rem;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .dhikr-count{
+    font-size:.9rem;
+    color:var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .dhikr-count b{
+    color:var(--gold-soft);
+    font-size:1.1rem;
+  }
+
+  .progress-track{
+    height:8px;
+    border-radius:6px;
+    background:rgba(255,255,255,.06);
+    overflow:hidden;
+    margin-bottom:14px;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--gold), var(--gold-soft));
+    border-radius:6px;
+    transition:width .25s ease;
+  }
+  .dhikr-card.complete .progress-fill{
+    background:linear-gradient(90deg, var(--done), #7fd6ae);
+  }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .tap-btn{
+    flex:1;
+    border:none;
+    border-radius:14px;
+    padding:16px 10px;
+    font-size:1rem;
+    font-weight:600;
+    color:#0b1f1c;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    box-shadow:0 4px 14px -6px rgba(201,162,75,.7);
+  }
+  .tap-btn:active{
+    transform:scale(.97);
+  }
+  .dhikr-card.complete .tap-btn{
+    background:linear-gradient(180deg, #7fd6ae, var(--done));
+    box-shadow:0 4px 14px -6px rgba(63,143,109,.7);
+  }
+  .icon-btn{
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    border:1px solid var(--card-line);
+    background:transparent;
+    color:var(--ink-dim);
+    font-size:1.1rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .icon-btn:active{transform:scale(.94);}
+
+  footer{
+    text-align:center;
+    color:var(--ink-dim);
+    font-size:.75rem;
+    padding:10px 20px 24px;
+    z-index:1;
+    opacity:.7;
+  }
+
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg-1:#faf6ea;
+      --bg-2:#f1e9d3;
+      --card:#fffdf6;
+      --card-line:rgba(150,116,40,.25);
+      --ink:#2a2318;
+      --ink-dim:#75705f;
+      --gold:#a9812f;
+      --gold-soft:#8a691f;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="pattern"></div>
+
+<header>
+  <h1>السُّبحة الإلكترونية</h1>
+  <p>اضغط على الذكر لعدّه، ويُحفَظ تقدّمك تلقائياً</p>
+</header>
+
+<main>
+  <div class="total-bar">
+    <div>
+      <div class="label">إجمالي اليوم</div>
+      <div class="value" id="grandTotal">0</div>
+    </div>
+    <button class="reset-all" id="resetAll">إعادة تصفير الكل</button>
+  </div>
+
+  <div id="list"></div>
+</main>
+
+<footer>
+  اللهم تقبّل منا صالح الأعمال
+</footer>
+
+<script>
+const DHIKR = [
+  { id:"subhanallah", name:"سبحان الله", target:33 },
+  { id:"alhamdulillah", name:"الحمد لله", target:33 },
+  { id:"allahuakbar", name:"الله أكبر", target:33 },
+  { id:"lailaha", name:"لا إله إلا الله", target:100 },
+  { id:"istighfar", name:"أستغفر الله", target:100 },
+  { id:"salawat", name:"اللهم صلِّ وسلِّم على سيدنا محمد", target:100 },
+];
+
+const STORAGE_KEY = "tasbih-counts-v1";
+
+function loadCounts(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return {};
+    return JSON.parse(raw);
+  }catch(e){
+    return {};
+  }
+}
+
+function saveCounts(counts){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+  }catch(e){ /* ignore */ }
+}
+
+let counts = loadCounts();
+
+const list = document.getElementById("list");
+const grandTotalEl = document.getElementById("grandTotal");
+
+function vibrate(ms){
+  if(navigator.vibrate){ navigator.vibrate(ms); }
+}
+
+function render(){
+  list.innerHTML = "";
+  let grandTotal = 0;
+
+  DHIKR.forEach(item => {
+    const count = counts[item.id] || 0;
+    grandTotal += count;
+    const pct = Math.min(100, Math.round((count / item.target) * 100));
+    const isComplete = count >= item.target;
+
+    const card = document.createElement("div");
+    card.className = "dhikr-card" + (isComplete ? " complete" : "");
+
+    card.innerHTML = `
+      <div class="dhikr-top">
+        <div class="dhikr-name">${item.name}</div>
+        <div class="dhikr-count"><b>${count}</b> / ${item.target}</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${pct}%"></div>
+      </div>
+      <div class="controls">
+        <button class="icon-btn" data-action="reset" data-id="${item.id}" aria-label="تصفير">↺</button>
+        <button class="tap-btn" data-action="tap" data-id="${item.id}">
+          ${isComplete ? "تمّ ✓ اضغط للمتابعة" : "اضغط للعدّ"}
+        </button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  grandTotalEl.textContent = grandTotal;
+}
+
+list.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  const item = DHIKR.find(d => d.id === id);
+  if(!item) return;
+
+  if(action === "tap"){
+    const current = counts[id] || 0;
+    const wasComplete = current >= item.target;
+    counts[id] = current + 1;
+    saveCounts(counts);
+    render();
+    if(!wasComplete && counts[id] >= item.target){
+      vibrate([40,60,40]);
+    } else {
+      vibrate(15);
+    }
+  } else if(action === "reset"){
+    counts[id] = 0;
+    saveCounts(counts);
+    render();
+  }
+});
+
+document.getElementById("resetAll").addEventListener("click", () => {
+  DHIKR.forEach(item => counts[item.id] = 0);
+  saveCounts(counts);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
