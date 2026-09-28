@@ -1,87 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Image Crop Tool</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #canvas { border: 1px solid #ccc; cursor: crosshair; }
-    #controls { margin-top: 10px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Image Resizer</title>
+<style>
+:root {
+  --bg: #f6f5f1; --card: #ffffff; --text: #1f1e1b; --muted: #6f6c64;
+  --line: #e2dfd6; --accent: #c4562b; --accent-text: #ffffff; --chip: #efece3;
+  --check-a: #ececec; --check-b: #f7f7f7;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171614; --card: #221f1c; --text: #f0ede6; --muted: #a09b90;
+    --line: #37332d; --accent: #e07a4f; --accent-text: #1a1210; --chip: #2d2a25;
+    --check-a: #2c2c2c; --check-b: #353535;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171614; --card: #221f1c; --text: #f0ede6; --muted: #a09b90;
+  --line: #37332d; --accent: #e07a4f; --accent-text: #1a1210; --chip: #2d2a25;
+  --check-a: #2c2c2c; --check-b: #353535;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 860px; margin: 0 auto; padding: 20px 16px 40px; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 0 0 18px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px; margin-bottom: 14px;
+}
+.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; }
+#drop {
+  border: 2px dashed var(--line); border-radius: 12px; padding: 26px 12px;
+  text-align: center; color: var(--muted); cursor: pointer; transition: .15s;
+}
+#drop.over, #drop:hover { border-color: var(--accent); color: var(--text); }
+#drop strong { color: var(--text); }
+input[type=file] { display: none; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+input[type=number], input[type=text], select {
+  font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; min-width: 0;
+}
+input[type=number] { width: 110px; }
+input[type=text] { width: 170px; }
+input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chk { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); padding-bottom: 9px; }
+button, .btn {
+  font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line);
+  background: var(--chip); color: var(--text); border-radius: 9px; padding: 9px 13px;
+  text-decoration: none; display: inline-block;
+}
+button:hover, .btn:hover { border-color: var(--accent); }
+.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.primary[aria-disabled=true], button:disabled { opacity: .45; pointer-events: none; }
+.small { padding: 6px 10px; font-size: 13px; font-weight: 500; }
+.stage {
+  background-image:
+    linear-gradient(45deg, var(--check-a) 25%, transparent 25%, transparent 75%, var(--check-a) 75%),
+    linear-gradient(45deg, var(--check-a) 25%, transparent 25%, transparent 75%, var(--check-a) 75%);
+  background-color: var(--check-b); background-size: 20px 20px; background-position: 0 0, 10px 10px;
+  border-radius: 10px; border: 1px solid var(--line); padding: 10px; overflow: auto; text-align: center;
+}
+canvas { max-width: 100%; height: auto; display: inline-block; vertical-align: top; }
+.info { color: var(--muted); font-size: 13px; margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; }
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.tpl {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 8px 10px;
+  cursor: pointer; text-align: left;
+}
+.tpl:hover { border-color: var(--accent); }
+.tpl .n { font-weight: 600; font-size: 13.5px; }
+.tpl .d { color: var(--muted); font-size: 12px; }
+.tpl .x { color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+.tpl .x:hover { color: #d33; background: var(--chip); }
+.sect { margin: 14px 0 8px; font-size: 12px; color: var(--muted); }
+.sect:first-of-type { margin-top: 0; }
+.note { color: var(--muted); font-size: 13px; margin: 10px 0 0; min-height: 1.2em; }
+.hide { display: none !important; }
+</style>
 </head>
 <body>
-  <h2>Crop Image Tool</h2>
-  <input type="file" id="upload" accept="image/*"><br><br>
-  <canvas id="canvas"></canvas>
-  <div id="controls">
-    <button id="cropBtn">Crop</button>
-    <a id="downloadLink" download="cropped.png">Download Cropped Image</a>
+<main>
+  <h1>Image Resizer</h1>
+  <p class="sub">Resize PNG, JPG and WEBP images in your browser. Nothing is uploaded anywhere.</p>
+
+  <div class="card">
+    <label id="drop" for="file">
+      <strong>Choose an image</strong> or drop it here<br>
+      <span style="font-size:13px">PNG · JPG · WEBP</span>
+    </label>
+    <input id="file" type="file" accept="image/png,image/jpeg,image/webp">
   </div>
 
-  <script>
-    const upload = document.getElementById('upload');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const cropBtn = document.getElementById('cropBtn');
-    const downloadLink = document.getElementById('downloadLink');
+  <div class="card" id="editor">
+    <h2>Size</h2>
+    <div class="row">
+      <label class="f">Width (px)<input id="w" type="number" min="1" max="8000" disabled></label>
+      <label class="f">Height (px)<input id="h" type="number" min="1" max="8000" disabled></label>
+      <label class="chk"><input id="lock" type="checkbox" checked disabled> Keep aspect ratio</label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="f">Fit mode
+        <select id="fit" disabled>
+          <option value="stretch">Stretch to size</option>
+          <option value="cover">Crop to fill</option>
+          <option value="contain">Fit inside (pad)</option>
+        </select>
+      </label>
+      <label class="f" id="qWrap">Quality <span id="qVal">92</span>%
+        <input id="q" type="range" min="40" max="100" value="92" disabled>
+      </label>
+      <button class="small" data-scale="0.25" disabled>25%</button>
+      <button class="small" data-scale="0.5" disabled>50%</button>
+      <button class="small" data-scale="1" disabled>Original</button>
+      <button class="small" data-scale="2" disabled>200%</button>
+    </div>
+  </div>
 
-    let img = new Image();
-    let startX, startY, endX, endY, isDrawing = false;
+  <div class="card">
+    <h2>Templates</h2>
+    <div class="sect">Built-in</div>
+    <div class="tpl-grid" id="builtin"></div>
+    <div class="sect">Your saved templates</div>
+    <div class="tpl-grid" id="custom"></div>
+    <div class="row" style="margin-top:12px">
+      <label class="f">Save current size as…<input id="tplName" type="text" placeholder="e.g. Blog header"></label>
+      <button id="saveTpl" disabled>Save template</button>
+    </div>
+    <p class="note" id="tplNote"></p>
+  </div>
 
-    upload.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = evt => {
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-        };
-        img.src = evt.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  <div class="card">
+    <h2>Preview</h2>
+    <div class="stage"><canvas id="canvas" width="600" height="300"></canvas></div>
+    <div class="info">
+      <span id="origInfo">No image loaded</span>
+      <span id="newInfo"></span>
+      <span id="sizeInfo"></span>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <a id="download" class="btn primary" role="button" aria-disabled="true" href="#">Download</a>
+    </div>
+    <p class="note" id="dlNote"></p>
+  </div>
+</main>
 
-    canvas.addEventListener('mousedown', e => {
-      isDrawing = true;
-      startX = e.offsetX;
-      startY = e.offsetY;
-    });
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const canvas = $('canvas'), ctx = canvas.getContext('2d');
+  const wIn = $('w'), hIn = $('h'), lock = $('lock'), fit = $('fit');
+  const q = $('q'), qVal = $('qVal'), qWrap = $('qWrap');
+  const dl = $('download'), dlNote = $('dlNote');
 
-    canvas.addEventListener('mousemove', e => {
-      if (!isDrawing) return;
-      endX = e.offsetX;
-      endY = e.offsetY;
-      ctx.drawImage(img, 0, 0);
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(startX, startY, endX - startX, endY - startY);
-    });
+  const BUILTIN = [
+    { name: 'Instagram Post', w: 1080, h: 1080 },
+    { name: 'Instagram Story', w: 1080, h: 1920 },
+    { name: 'YouTube Thumbnail', w: 1280, h: 720 },
+    { name: 'Facebook Cover', w: 820, h: 312 },
+    { name: 'X / Twitter Header', w: 1500, h: 500 },
+    { name: 'Full HD', w: 1920, h: 1080 },
+    { name: 'Profile Avatar', w: 400, h: 400 },
+    { name: 'Web Thumbnail', w: 300, h: 200 },
+  ];
 
-    canvas.addEventListener('mouseup', e => {
-      isDrawing = false;
-      endX = e.offsetX;
-      endY = e.offsetY;
-    });
+  let img = null;        // loaded HTMLImageElement
+  let meta = null;       // { name, mime, ext, size }
+  let ratio = 1;
+  let blobUrl = null;
+  let lastBlob = null;
+  let renderTimer = null;
 
-    cropBtn.addEventListener('click', () => {
-      if (startX == null || startY == null || endX == null || endY == null) return;
-      const width = endX - startX;
-      const height = endY - startY;
-      const cropped = document.createElement('canvas');
-      cropped.width = width;
-      cropped.height = height;
-      cropped.getContext('2d').drawImage(
-        img,
-        startX, startY, width, height,
-        0, 0, width, height
-      );
-      downloadLink.href = cropped.toDataURL();
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(cropped, 0, 0);
-    });
-  </script>
+  /* ---------- storage (per-viewer convenience, always guarded) ---------- */
+  const KEY = 'imgresizer.templates.v1';
+  function loadCustom() {
+    try { const v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v : []; }
+    catch { return []; }
+  }
+  let memoryTemplates = null; // fallback when storage is unavailable
+  function getCustom() { return memoryTemplates || loadCustom(); }
+  function setCustom(list) {
+    try { localStorage.setItem(KEY, JSON.stringify(list)); memoryTemplates = null; }
+    catch { memoryTemplates = list; $('tplNote').textContent = 'Storage is unavailable here, so templates last only until you close the page.'; }
+  }
+
+  /* ---------- templates ---------- */
+  function tplButton(t, removable, idx) {
+    const el = document.createElement('div');
+    el.className = 'tpl'; el.tabIndex = 0; el.setAttribute('role', 'button');
+    const left = document.createElement('div');
+    const n = document.createElement('div'); n.className = 'n'; n.textContent = t.name;
+    const d = document.createElement('div'); d.className = 'd'; d.textContent = t.w + ' × ' + t.h;
+    left.append(n, d); el.append(left);
+    if (removable) {
+      const x = document.createElement('span');
+      x.className = 'x'; x.textContent = '×'; x.title = 'Delete template';
+      x.addEventListener('click', e => {
+        e.stopPropagation();
+        const list = getCustom(); list.splice(idx, 1); setCustom(list); renderTemplates();
+      });
+      el.append(x);
+    }
+    const apply = () => applyTemplate(t);
+    el.addEventListener('click', apply);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply(); } });
+    return el;
+  }
+  function renderTemplates() {
+    const b = $('builtin'), c = $('custom');
+    b.replaceChildren(...BUILTIN.map(t => tplButton(t, false)));
+    const list = getCustom();
+    if (!list.length) {
+      const p = document.createElement('div'); p.className = 'd'; p.style.color = 'var(--muted)';
+      p.textContent = 'None yet. Set a size below and save it.';
+      c.replaceChildren(p);
+    } else {
+      c.replaceChildren(...list.map((t, i) => tplButton(t, true, i)));
+    }
+  }
+  function applyTemplate(t) {
+    if (!img) { $('tplNote').textContent = 'Load an image first, then pick a template.'; return; }
+    lock.checked = false;
+    wIn.value = t.w; hIn.value = t.h;
+    if (fit.value === 'stretch' && Math.abs(t.w / t.h - ratio) > 0.02) fit.value = 'cover';
+    $('tplNote').textContent = `Applied "${t.name}" (${t.w} × ${t.h}). Aspect lock turned off; using "${fit.options[fit.selectedIndex].text}".`;
+    render();
+  }
+  $('saveTpl').addEventListener('click', () => {
+    const name = $('tplName').value.trim();
+    const w = clampDim(wIn.value), h = clampDim(hIn.value);
+    if (!name) { $('tplNote').textContent = 'Give the template a name first.'; return; }
+    if (!w || !h) return;
+    const list = getCustom().filter(t => t.name.toLowerCase() !== name.toLowerCase());
+    list.push({ name, w, h });
+    setCustom(list); renderTemplates();
+    $('tplName').value = '';
+    $('tplNote').textContent = `Saved "${name}" (${w} × ${h}).`;
+  });
+
+  /* ---------- loading ---------- */
+  const MIME_EXT = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
+  function handleFile(file) {
+    if (!file) return;
+    if (!MIME_EXT[file.type]) { dlNote.textContent = 'Please choose a PNG, JPG or WEBP image.'; return; }
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => {
+      URL.revokeObjectURL(url);
+      img = im; ratio = im.naturalWidth / im.naturalHeight;
+      const m = file.name.match(/\.([A-Za-z0-9]+)$/);
+      meta = { name: file.name, mime: file.type, ext: m ? m[1] : MIME_EXT[file.type], size: file.size };
+      // Keep the exact original filename; add an extension only if it was missing.
+      if (!m) meta.name = file.name + '.' + MIME_EXT[file.type];
+      document.querySelectorAll('#editor input, #editor select, #editor button, #saveTpl').forEach(e => e.disabled = false);
+      qWrap.classList.toggle('hide', file.type === 'image/png');
+      wIn.value = im.naturalWidth; hIn.value = im.naturalHeight;
+      lock.checked = true; fit.value = 'stretch';
+      $('origInfo').textContent = `Original: ${im.naturalWidth} × ${im.naturalHeight} · ${fmtBytes(file.size)} · ${file.type.split('/')[1].toUpperCase()}`;
+      dlNote.textContent = '';
+      render();
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); dlNote.textContent = 'That image could not be read.'; };
+    im.src = url;
+  }
+  $('file').addEventListener('change', e => handleFile(e.target.files[0]));
+  const drop = $('drop');
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+
+  /* ---------- sizing ---------- */
+  function clampDim(v) {
+    const n = Math.round(Number(v));
+    if (!isFinite(n) || n < 1) return 0;
+    return Math.min(n, 8000);
+  }
+  wIn.addEventListener('input', () => {
+    if (lock.checked && img) { const w = clampDim(wIn.value); if (w) hIn.value = Math.max(1, Math.round(w / ratio)); }
+    scheduleRender();
+  });
+  hIn.addEventListener('input', () => {
+    if (lock.checked && img) { const h = clampDim(hIn.value); if (h) wIn.value = Math.max(1, Math.round(h * ratio)); }
+    scheduleRender();
+  });
+  lock.addEventListener('change', () => {
+    if (lock.checked && img) { const w = clampDim(wIn.value); if (w) hIn.value = Math.max(1, Math.round(w / ratio)); render(); }
+  });
+  fit.addEventListener('change', render);
+  q.addEventListener('input', () => { qVal.textContent = q.value; scheduleRender(); });
+  document.querySelectorAll('[data-scale]').forEach(b => b.addEventListener('click', () => {
+    if (!img) return;
+    const s = Number(b.dataset.scale);
+    wIn.value = clampDim(img.naturalWidth * s); hIn.value = clampDim(img.naturalHeight * s);
+    lock.checked = true; fit.value = 'stretch';
+    render();
+  }));
+
+  /* ---------- render ---------- */
+  function scheduleRender() { clearTimeout(renderTimer); renderTimer = setTimeout(render, 120); }
+
+  function drawTo(w, h) {
+    canvas.width = w; canvas.height = h;
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    if (meta.mime === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
+    else ctx.clearRect(0, 0, w, h);
+    const iw = img.naturalWidth, ih = img.naturalHeight, mode = fit.value;
+    if (mode === 'stretch') { ctx.drawImage(img, 0, 0, w, h); return; }
+    if (mode === 'cover') {
+      const s = Math.max(w / iw, h / ih), sw = w / s, sh = h / s;
+      ctx.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 0, 0, w, h);
+    } else {
+      const s = Math.min(w / iw, h / ih), dw = iw * s, dh = ih * s;
+      ctx.drawImage(img, 0, 0, iw, ih, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    }
+  }
+
+  function render() {
+    if (!img) return;
+    const w = clampDim(wIn.value), h = clampDim(hIn.value);
+    if (!w || !h) return;
+    drawTo(w, h);
+    $('newInfo').textContent = `New: ${w} × ${h}`;
+    $('sizeInfo').textContent = 'Preparing file…';
+    setDisabled(true);
+    const quality = meta.mime === 'image/png' ? undefined : Number(q.value) / 100;
+    const token = ++renderToken;
+    canvas.toBlob(blob => {
+      if (token !== renderToken) return;
+      if (!blob) { $('sizeInfo').textContent = ''; dlNote.textContent = 'Could not encode this image.'; return; }
+      // Some browsers can't encode WEBP and silently fall back to PNG.
+      if (blob.type !== meta.mime) {
+        dlNote.textContent = `This browser can't encode ${meta.mime.split('/')[1].toUpperCase()}, so it would save as ${blob.type.split('/')[1].toUpperCase()} instead.`;
+      } else dlNote.textContent = '';
+      lastBlob = blob;
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      blobUrl = URL.createObjectURL(blob);
+      dl.href = blobUrl; dl.setAttribute('download', meta.name);
+      $('sizeInfo').textContent = `File size: ${fmtBytes(blob.size)}`;
+      setDisabled(false);
+    }, meta.mime, quality);
+  }
+  let renderToken = 0;
+  function setDisabled(d) { dl.setAttribute('aria-disabled', d ? 'true' : 'false'); }
+
+  /* ---------- download ---------- */
+  let downloads = null;
+  if (window.claude && typeof window.claude.use === 'function') {
+    window.claude.use('downloads').then(d => { downloads = d; }).catch(() => {});
+  }
+  dl.addEventListener('click', async e => {
+    if (dl.getAttribute('aria-disabled') === 'true' || !lastBlob) { e.preventDefault(); return; }
+    if (downloads) {
+      e.preventDefault();
+      try {
+        await downloads.save({ filename: meta.name, data: lastBlob });
+      } catch (err) {
+        if (err && err.code === 'declined') return;
+        dlNote.textContent = 'Could not save the file' + (err && err.message ? ': ' + err.message : '.');
+      }
+    }
+    // Otherwise the plain <a download> link handles it (works when the file is opened locally).
+  });
+
+  function fmtBytes(n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1048576).toFixed(2) + ' MB';
+  }
+
+  renderTemplates();
+})();
+</script>
 </body>
 </html>
