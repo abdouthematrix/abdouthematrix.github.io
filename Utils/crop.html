@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Crop Tool</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #canvas { border: 1px solid #ccc; cursor: crosshair; }
+    #controls { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Crop Image Tool</h2>
+  <input type="file" id="upload" accept="image/*"><br><br>
+  <canvas id="canvas"></canvas>
+  <div id="controls">
+    <button id="cropBtn">Crop</button>
+    <a id="downloadLink" download="cropped.png">Download Cropped Image</a>
+  </div>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const cropBtn = document.getElementById('cropBtn');
+    const downloadLink = document.getElementById('downloadLink');
+
+    let img = new Image();
+    let startX, startY, endX, endY, isDrawing = false;
+
+    upload.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = evt => {
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    canvas.addEventListener('mousedown', e => {
+      isDrawing = true;
+      startX = e.offsetX;
+      startY = e.offsetY;
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (!isDrawing) return;
+      endX = e.offsetX;
+      endY = e.offsetY;
+      ctx.drawImage(img, 0, 0);
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+    });
+
+    canvas.addEventListener('mouseup', e => {
+      isDrawing = false;
+      endX = e.offsetX;
+      endY = e.offsetY;
+    });
+
+    cropBtn.addEventListener('click', () => {
+      if (startX == null || startY == null || endX == null || endY == null) return;
+      const width = endX - startX;
+      const height = endY - startY;
+      const cropped = document.createElement('canvas');
+      cropped.width = width;
+      cropped.height = height;
+      cropped.getContext('2d').drawImage(
+        img,
+        startX, startY, width, height,
+        0, 0, width, height
+      );
+      downloadLink.href = cropped.toDataURL();
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(cropped, 0, 0);
+    });
+  </script>
+</body>
+</html>
