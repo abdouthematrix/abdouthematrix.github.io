@@ -1,387 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Image Resizer</title>
-<style>
-:root {
-  --bg: #f6f5f1; --card: #ffffff; --text: #1f1e1b; --muted: #6f6c64;
-  --line: #e2dfd6; --accent: #c4562b; --accent-text: #ffffff; --chip: #efece3;
-  --check-a: #ececec; --check-b: #f7f7f7;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #171614; --card: #221f1c; --text: #f0ede6; --muted: #a09b90;
-    --line: #37332d; --accent: #e07a4f; --accent-text: #1a1210; --chip: #2d2a25;
-    --check-a: #2c2c2c; --check-b: #353535;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #171614; --card: #221f1c; --text: #f0ede6; --muted: #a09b90;
-  --line: #37332d; --accent: #e07a4f; --accent-text: #1a1210; --chip: #2d2a25;
-  --check-a: #2c2c2c; --check-b: #353535;
-}
-html { scroll-padding-top: env(safe-area-inset-top, 0px); }
-* { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--bg); color: var(--text);
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-main { max-width: 860px; margin: 0 auto; padding: 20px 16px 40px; }
-h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
-.sub { color: var(--muted); margin: 0 0 18px; }
-.card {
-  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-  padding: 16px; margin-bottom: 14px;
-}
-.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; }
-#drop {
-  border: 2px dashed var(--line); border-radius: 12px; padding: 26px 12px;
-  text-align: center; color: var(--muted); cursor: pointer; transition: .15s;
-}
-#drop.over, #drop:hover { border-color: var(--accent); color: var(--text); }
-#drop strong { color: var(--text); }
-input[type=file] { display: none; }
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
-label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
-input[type=number], input[type=text], select {
-  font: inherit; color: var(--text); background: var(--bg);
-  border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; min-width: 0;
-}
-input[type=number] { width: 110px; }
-input[type=text] { width: 170px; }
-input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-.chk { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); padding-bottom: 9px; }
-button, .btn {
-  font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line);
-  background: var(--chip); color: var(--text); border-radius: 9px; padding: 9px 13px;
-  text-decoration: none; display: inline-block;
-}
-button:hover, .btn:hover { border-color: var(--accent); }
-.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-.primary[aria-disabled=true], button:disabled { opacity: .45; pointer-events: none; }
-.small { padding: 6px 10px; font-size: 13px; font-weight: 500; }
-.stage {
-  background-image:
-    linear-gradient(45deg, var(--check-a) 25%, transparent 25%, transparent 75%, var(--check-a) 75%),
-    linear-gradient(45deg, var(--check-a) 25%, transparent 25%, transparent 75%, var(--check-a) 75%);
-  background-color: var(--check-b); background-size: 20px 20px; background-position: 0 0, 10px 10px;
-  border-radius: 10px; border: 1px solid var(--line); padding: 10px; overflow: auto; text-align: center;
-}
-canvas { max-width: 100%; height: auto; display: inline-block; vertical-align: top; }
-.info { color: var(--muted); font-size: 13px; margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; }
-.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
-.tpl {
-  display: flex; align-items: center; justify-content: space-between; gap: 6px;
-  border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 8px 10px;
-  cursor: pointer; text-align: left;
-}
-.tpl:hover { border-color: var(--accent); }
-.tpl .n { font-weight: 600; font-size: 13.5px; }
-.tpl .d { color: var(--muted); font-size: 12px; }
-.tpl .x { color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
-.tpl .x:hover { color: #d33; background: var(--chip); }
-.sect { margin: 14px 0 8px; font-size: 12px; color: var(--muted); }
-.sect:first-of-type { margin-top: 0; }
-.note { color: var(--muted); font-size: 13px; margin: 10px 0 0; min-height: 1.2em; }
-.hide { display: none !important; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image Crop & Resize Tool</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; max-width: 900px; }
+    h2 { margin-bottom: 4px; }
+    h3 { margin: 22px 0 8px; }
+    #canvas { border: 1px solid #ccc; cursor: crosshair; max-width: 100%; height: auto; touch-action: none; background: #fafafa; }
+    .row { margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    button, .btn { padding: 7px 12px; border: 1px solid #999; background: #f2f2f2; border-radius: 5px; cursor: pointer; font-size: 14px; color: #000; text-decoration: none; }
+    button:hover, .btn:hover { background: #e4e4e4; }
+    button.active { background: #333; color: #fff; border-color: #333; }
+    button:disabled { opacity: .5; cursor: default; }
+    input[type=number] { width: 80px; padding: 6px; }
+    #info { color: #555; font-size: 14px; margin: 6px 0; }
+    #downloadLink.disabled { opacity: .5; pointer-events: none; }
+  </style>
 </head>
 <body>
-<main>
-  <h1>Image Resizer</h1>
-  <p class="sub">Resize PNG, JPG and WEBP images in your browser. Nothing is uploaded anywhere.</p>
+  <h2>Image Crop &amp; Resize Tool</h2>
+  <input type="file" id="upload" accept="image/png,image/jpeg,image/webp">
 
-  <div class="card">
-    <label id="drop" for="file">
-      <strong>Choose an image</strong> or drop it here<br>
-      <span style="font-size:13px">PNG · JPG · WEBP</span>
-    </label>
-    <input id="file" type="file" accept="image/png,image/jpeg,image/webp">
+  <h3>1. Crop</h3>
+  <div class="row" id="cropTemplates"></div>
+  <div class="row">
+    Crop size (px) <input type="number" id="cw" min="1" max="8000" value="1700"> ×
+    <input type="number" id="ch" min="1" max="8000" value="900">
+    <button id="cropSizeBtn">Use this size</button>
+  </div>
+  <div id="info">No image loaded</div>
+  <canvas id="canvas" width="600" height="300"></canvas>
+  <div class="row">
+    <button id="cropBtn" disabled>Crop</button>
+    <button id="resetBtn" disabled>Reset to original</button>
   </div>
 
-  <div class="card" id="editor">
-    <h2>Size</h2>
-    <div class="row">
-      <label class="f">Width (px)<input id="w" type="number" min="1" max="8000" disabled></label>
-      <label class="f">Height (px)<input id="h" type="number" min="1" max="8000" disabled></label>
-      <label class="chk"><input id="lock" type="checkbox" checked disabled> Keep aspect ratio</label>
-    </div>
-    <div class="row" style="margin-top:10px">
-      <label class="f">Fit mode
-        <select id="fit" disabled>
-          <option value="stretch">Stretch to size</option>
-          <option value="cover">Crop to fill</option>
-          <option value="contain">Fit inside (pad)</option>
-        </select>
-      </label>
-      <label class="f" id="qWrap">Quality <span id="qVal">92</span>%
-        <input id="q" type="range" min="40" max="100" value="92" disabled>
-      </label>
-      <button class="small" data-scale="0.25" disabled>25%</button>
-      <button class="small" data-scale="0.5" disabled>50%</button>
-      <button class="small" data-scale="1" disabled>Original</button>
-      <button class="small" data-scale="2" disabled>200%</button>
-    </div>
+  <h3>2. Resize</h3>
+  <div class="row" id="resizeTemplates"></div>
+  <div class="row">
+    Width <input type="number" id="w" min="1" max="8000">
+    Height <input type="number" id="h" min="1" max="8000">
+    <label><input type="checkbox" id="lock" checked> Keep aspect ratio</label>
+    <button id="resizeBtn" disabled>Resize</button>
   </div>
 
-  <div class="card">
-    <h2>Templates</h2>
-    <div class="sect">Built-in</div>
-    <div class="tpl-grid" id="builtin"></div>
-    <div class="sect">Your saved templates</div>
-    <div class="tpl-grid" id="custom"></div>
-    <div class="row" style="margin-top:12px">
-      <label class="f">Save current size as…<input id="tplName" type="text" placeholder="e.g. Blog header"></label>
-      <button id="saveTpl" disabled>Save template</button>
-    </div>
-    <p class="note" id="tplNote"></p>
+  <h3>3. Download</h3>
+  <div class="row">
+    <a id="downloadLink" class="btn disabled" href="#">Download</a>
+    <span id="dlInfo" style="color:#555;font-size:14px"></span>
   </div>
 
-  <div class="card">
-    <h2>Preview</h2>
-    <div class="stage"><canvas id="canvas" width="600" height="300"></canvas></div>
-    <div class="info">
-      <span id="origInfo">No image loaded</span>
-      <span id="newInfo"></span>
-      <span id="sizeInfo"></span>
-    </div>
-    <div class="row" style="margin-top:12px">
-      <a id="download" class="btn primary" role="button" aria-disabled="true" href="#">Download</a>
-    </div>
-    <p class="note" id="dlNote"></p>
-  </div>
-</main>
+  <script>
+    const $ = id => document.getElementById(id);
+    const canvas = $('canvas'), ctx = canvas.getContext('2d');
+    const work = document.createElement('canvas');   // current image (after crops/resizes)
+    const wctx = work.getContext('2d');
 
-<script>
-(() => {
-  const $ = id => document.getElementById(id);
-  const canvas = $('canvas'), ctx = canvas.getContext('2d');
-  const wIn = $('w'), hIn = $('h'), lock = $('lock'), fit = $('fit');
-  const q = $('q'), qVal = $('qVal'), qWrap = $('qWrap');
-  const dl = $('download'), dlNote = $('dlNote');
+    // ---- Simple templates ----
+    const CROP_TEMPLATES = [
+      { name: '1700×900 px', px: { w: 1700, h: 900 } }
+    ];
+    const RESIZE_TEMPLATES = [
+      { name: '506×306 px', w: 506, h: 306 }
+    ];
 
-  const BUILTIN = [
-    { name: 'Instagram Post', w: 1080, h: 1080 },
-    { name: 'Instagram Story', w: 1080, h: 1920 },
-    { name: 'YouTube Thumbnail', w: 1280, h: 720 },
-    { name: 'Facebook Cover', w: 820, h: 312 },
-    { name: 'X / Twitter Header', w: 1500, h: 500 },
-    { name: 'Full HD', w: 1920, h: 1080 },
-    { name: 'Profile Avatar', w: 400, h: 400 },
-    { name: 'Web Thumbnail', w: 300, h: 200 },
-  ];
+    let original = null;       // original loaded image
+    let meta = null;           // { name, mime }
+    let ratio = null;          // active crop ratio (null = free)
+    let fixed = null;          // fixed crop size in pixels {w, h}
+    let warn = '';
+    let sel = null;            // {x, y, w, h} in image pixels
+    let drag = null;           // {sx, sy}
+    let blobUrl = null;
 
-  let img = null;        // loaded HTMLImageElement
-  let meta = null;       // { name, mime, ext, size }
-  let ratio = 1;
-  let blobUrl = null;
-  let lastBlob = null;
-  let renderTimer = null;
+    // ---- Build template buttons ----
+    CROP_TEMPLATES.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.textContent = t.name;
+      b.onclick = () => {
+        markActive(b);
+        ratio = t.ratio || null;
+        fixed = t.px || null;
+        if (fixed) { $('cw').value = fixed.w; $('ch').value = fixed.h; }
+        if (!work.width) return;
+        sel = defaultSel();
+        draw();
+      };
+      $('cropTemplates').appendChild(b);
+    });
+    RESIZE_TEMPLATES.forEach(t => {
+      const b = document.createElement('button');
+      b.textContent = t.name;
+      b.onclick = () => {
+        $('w').value = t.w; $('h').value = t.h;
+        $('lock').checked = false;
+      };
+      $('resizeTemplates').appendChild(b);
+    });
 
-  /* ---------- storage (per-viewer convenience, always guarded) ---------- */
-  const KEY = 'imgresizer.templates.v1';
-  function loadCustom() {
-    try { const v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v : []; }
-    catch { return []; }
-  }
-  let memoryTemplates = null; // fallback when storage is unavailable
-  function getCustom() { return memoryTemplates || loadCustom(); }
-  function setCustom(list) {
-    try { localStorage.setItem(KEY, JSON.stringify(list)); memoryTemplates = null; }
-    catch { memoryTemplates = list; $('tplNote').textContent = 'Storage is unavailable here, so templates last only until you close the page.'; }
-  }
+    // ---- Load image ----
+    $('upload').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        original = img;
+        const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[file.type] || 'png';
+        meta = {
+          name: /\.[A-Za-z0-9]+$/.test(file.name) ? file.name : file.name + '.' + ext,
+          mime: { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' }[ext]
+        };
+        resetToOriginal();
+        ['cropBtn', 'resetBtn', 'resizeBtn'].forEach(id => $(id).disabled = false);
+      };
+      img.src = url;
+    });
 
-  /* ---------- templates ---------- */
-  function tplButton(t, removable, idx) {
-    const el = document.createElement('div');
-    el.className = 'tpl'; el.tabIndex = 0; el.setAttribute('role', 'button');
-    const left = document.createElement('div');
-    const n = document.createElement('div'); n.className = 'n'; n.textContent = t.name;
-    const d = document.createElement('div'); d.className = 'd'; d.textContent = t.w + ' × ' + t.h;
-    left.append(n, d); el.append(left);
-    if (removable) {
-      const x = document.createElement('span');
-      x.className = 'x'; x.textContent = '×'; x.title = 'Delete template';
-      x.addEventListener('click', e => {
-        e.stopPropagation();
-        const list = getCustom(); list.splice(idx, 1); setCustom(list); renderTemplates();
-      });
-      el.append(x);
+    function resetToOriginal() {
+      setWork(original.naturalWidth, original.naturalHeight, c => c.drawImage(original, 0, 0));
     }
-    const apply = () => applyTemplate(t);
-    el.addEventListener('click', apply);
-    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply(); } });
-    return el;
-  }
-  function renderTemplates() {
-    const b = $('builtin'), c = $('custom');
-    b.replaceChildren(...BUILTIN.map(t => tplButton(t, false)));
-    const list = getCustom();
-    if (!list.length) {
-      const p = document.createElement('div'); p.className = 'd'; p.style.color = 'var(--muted)';
-      p.textContent = 'None yet. Set a size below and save it.';
-      c.replaceChildren(p);
-    } else {
-      c.replaceChildren(...list.map((t, i) => tplButton(t, true, i)));
+
+    // Replace the working image, then refresh everything
+    function setWork(w, h, painter) {
+      const tmp = document.createElement('canvas');
+      tmp.width = w; tmp.height = h;
+      const t = tmp.getContext('2d');
+      if (meta.mime === 'image/jpeg') { t.fillStyle = '#fff'; t.fillRect(0, 0, w, h); }
+      t.imageSmoothingQuality = 'high';
+      painter(t);
+      work.width = w; work.height = h;
+      wctx.drawImage(tmp, 0, 0);
+      $('w').value = w; $('h').value = h;
+      sel = defaultSel();
+      draw();
+      refreshDownload();
     }
-  }
-  function applyTemplate(t) {
-    if (!img) { $('tplNote').textContent = 'Load an image first, then pick a template.'; return; }
-    lock.checked = false;
-    wIn.value = t.w; hIn.value = t.h;
-    if (fit.value === 'stretch' && Math.abs(t.w / t.h - ratio) > 0.02) fit.value = 'cover';
-    $('tplNote').textContent = `Applied "${t.name}" (${t.w} × ${t.h}). Aspect lock turned off; using "${fit.options[fit.selectedIndex].text}".`;
-    render();
-  }
-  $('saveTpl').addEventListener('click', () => {
-    const name = $('tplName').value.trim();
-    const w = clampDim(wIn.value), h = clampDim(hIn.value);
-    if (!name) { $('tplNote').textContent = 'Give the template a name first.'; return; }
-    if (!w || !h) return;
-    const list = getCustom().filter(t => t.name.toLowerCase() !== name.toLowerCase());
-    list.push({ name, w, h });
-    setCustom(list); renderTemplates();
-    $('tplName').value = '';
-    $('tplNote').textContent = `Saved "${name}" (${w} × ${h}).`;
-  });
 
-  /* ---------- loading ---------- */
-  const MIME_EXT = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
-  function handleFile(file) {
-    if (!file) return;
-    if (!MIME_EXT[file.type]) { dlNote.textContent = 'Please choose a PNG, JPG or WEBP image.'; return; }
-    const url = URL.createObjectURL(file);
-    const im = new Image();
-    im.onload = () => {
-      URL.revokeObjectURL(url);
-      img = im; ratio = im.naturalWidth / im.naturalHeight;
-      const m = file.name.match(/\.([A-Za-z0-9]+)$/);
-      meta = { name: file.name, mime: file.type, ext: m ? m[1] : MIME_EXT[file.type], size: file.size };
-      // Keep the exact original filename; add an extension only if it was missing.
-      if (!m) meta.name = file.name + '.' + MIME_EXT[file.type];
-      document.querySelectorAll('#editor input, #editor select, #editor button, #saveTpl').forEach(e => e.disabled = false);
-      qWrap.classList.toggle('hide', file.type === 'image/png');
-      wIn.value = im.naturalWidth; hIn.value = im.naturalHeight;
-      lock.checked = true; fit.value = 'stretch';
-      $('origInfo').textContent = `Original: ${im.naturalWidth} × ${im.naturalHeight} · ${fmtBytes(file.size)} · ${file.type.split('/')[1].toUpperCase()}`;
-      dlNote.textContent = '';
-      render();
-    };
-    im.onerror = () => { URL.revokeObjectURL(url); dlNote.textContent = 'That image could not be read.'; };
-    im.src = url;
-  }
-  $('file').addEventListener('change', e => handleFile(e.target.files[0]));
-  const drop = $('drop');
-  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
-  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
-  drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
-
-  /* ---------- sizing ---------- */
-  function clampDim(v) {
-    const n = Math.round(Number(v));
-    if (!isFinite(n) || n < 1) return 0;
-    return Math.min(n, 8000);
-  }
-  wIn.addEventListener('input', () => {
-    if (lock.checked && img) { const w = clampDim(wIn.value); if (w) hIn.value = Math.max(1, Math.round(w / ratio)); }
-    scheduleRender();
-  });
-  hIn.addEventListener('input', () => {
-    if (lock.checked && img) { const h = clampDim(hIn.value); if (h) wIn.value = Math.max(1, Math.round(h * ratio)); }
-    scheduleRender();
-  });
-  lock.addEventListener('change', () => {
-    if (lock.checked && img) { const w = clampDim(wIn.value); if (w) hIn.value = Math.max(1, Math.round(w / ratio)); render(); }
-  });
-  fit.addEventListener('change', render);
-  q.addEventListener('input', () => { qVal.textContent = q.value; scheduleRender(); });
-  document.querySelectorAll('[data-scale]').forEach(b => b.addEventListener('click', () => {
-    if (!img) return;
-    const s = Number(b.dataset.scale);
-    wIn.value = clampDim(img.naturalWidth * s); hIn.value = clampDim(img.naturalHeight * s);
-    lock.checked = true; fit.value = 'stretch';
-    render();
-  }));
-
-  /* ---------- render ---------- */
-  function scheduleRender() { clearTimeout(renderTimer); renderTimer = setTimeout(render, 120); }
-
-  function drawTo(w, h) {
-    canvas.width = w; canvas.height = h;
-    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-    if (meta.mime === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
-    else ctx.clearRect(0, 0, w, h);
-    const iw = img.naturalWidth, ih = img.naturalHeight, mode = fit.value;
-    if (mode === 'stretch') { ctx.drawImage(img, 0, 0, w, h); return; }
-    if (mode === 'cover') {
-      const s = Math.max(w / iw, h / ih), sw = w / s, sh = h / s;
-      ctx.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 0, 0, w, h);
-    } else {
-      const s = Math.min(w / iw, h / ih), dw = iw * s, dh = ih * s;
-      ctx.drawImage(img, 0, 0, iw, ih, (w - dw) / 2, (h - dh) / 2, dw, dh);
-    }
-  }
-
-  function render() {
-    if (!img) return;
-    const w = clampDim(wIn.value), h = clampDim(hIn.value);
-    if (!w || !h) return;
-    drawTo(w, h);
-    $('newInfo').textContent = `New: ${w} × ${h}`;
-    $('sizeInfo').textContent = 'Preparing file…';
-    setDisabled(true);
-    const quality = meta.mime === 'image/png' ? undefined : Number(q.value) / 100;
-    const token = ++renderToken;
-    canvas.toBlob(blob => {
-      if (token !== renderToken) return;
-      if (!blob) { $('sizeInfo').textContent = ''; dlNote.textContent = 'Could not encode this image.'; return; }
-      // Some browsers can't encode WEBP and silently fall back to PNG.
-      if (blob.type !== meta.mime) {
-        dlNote.textContent = `This browser can't encode ${meta.mime.split('/')[1].toUpperCase()}, so it would save as ${blob.type.split('/')[1].toUpperCase()} instead.`;
-      } else dlNote.textContent = '';
-      lastBlob = blob;
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
-      blobUrl = URL.createObjectURL(blob);
-      dl.href = blobUrl; dl.setAttribute('download', meta.name);
-      $('sizeInfo').textContent = `File size: ${fmtBytes(blob.size)}`;
-      setDisabled(false);
-    }, meta.mime, quality);
-  }
-  let renderToken = 0;
-  function setDisabled(d) { dl.setAttribute('aria-disabled', d ? 'true' : 'false'); }
-
-  /* ---------- download ---------- */
-  let downloads = null;
-  if (window.claude && typeof window.claude.use === 'function') {
-    window.claude.use('downloads').then(d => { downloads = d; }).catch(() => {});
-  }
-  dl.addEventListener('click', async e => {
-    if (dl.getAttribute('aria-disabled') === 'true' || !lastBlob) { e.preventDefault(); return; }
-    if (downloads) {
-      e.preventDefault();
-      try {
-        await downloads.save({ filename: meta.name, data: lastBlob });
-      } catch (err) {
-        if (err && err.code === 'declined') return;
-        dlNote.textContent = 'Could not save the file' + (err && err.message ? ': ' + err.message : '.');
+    // ---- Drawing ----
+    function draw() {
+      canvas.width = work.width; canvas.height = work.height;
+      ctx.drawImage(work, 0, 0);
+      if (sel && sel.w > 0 && sel.h > 0) {
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(0, 0, canvas.width, sel.y);
+        ctx.fillRect(0, sel.y + sel.h, canvas.width, canvas.height - sel.y - sel.h);
+        ctx.fillRect(0, sel.y, sel.x, sel.h);
+        ctx.fillRect(sel.x + sel.w, sel.y, canvas.width - sel.x - sel.w, sel.h);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = Math.max(2, canvas.width / 400);
+        ctx.strokeRect(sel.x, sel.y, sel.w, sel.h);
       }
+      $('info').textContent = `Image: ${work.width} × ${work.height}` +
+        (sel ? `  |  Selection: ${Math.round(sel.w)} × ${Math.round(sel.h)}` : '') + warn;
     }
-    // Otherwise the plain <a download> link handles it (works when the file is opened locally).
-  });
 
-  function fmtBytes(n) {
-    if (n < 1024) return n + ' B';
-    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
-    return (n / 1048576).toFixed(2) + ' MB';
-  }
+    function markActive(btn) {
+      document.querySelectorAll('#cropTemplates button').forEach(x => x.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+    function defaultSel() {
+      warn = '';
+      if (fixed) {
+        if (fixed.w > work.width || fixed.h > work.height) {
+          warn = `  |  Image is smaller than ${fixed.w} × ${fixed.h}, so this crop size doesn't fit.`;
+          return null;
+        }
+        return { x: (work.width - fixed.w) / 2, y: (work.height - fixed.h) / 2, w: fixed.w, h: fixed.h };
+      }
+      return ratio ? centeredSelection(ratio) : null;
+    }
+    function placeFixed(p) {
+      if (!fixed || fixed.w > work.width || fixed.h > work.height) return;
+      const x = Math.min(Math.max(p.x - fixed.w / 2, 0), work.width - fixed.w);
+      const y = Math.min(Math.max(p.y - fixed.h / 2, 0), work.height - fixed.h);
+      sel = { x, y, w: fixed.w, h: fixed.h };
+      draw();
+    }
+    $('cropSizeBtn').addEventListener('click', () => {
+      fixed = { w: clamp($('cw').value), h: clamp($('ch').value) };
+      ratio = null;
+      markActive(null);
+      if (!work.width) return;
+      sel = defaultSel();
+      draw();
+    });
 
-  renderTemplates();
-})();
-</script>
+    function centeredSelection(r) {
+      let w = work.width, h = w / r;
+      if (h > work.height) { h = work.height; w = h * r; }
+      return { x: (work.width - w) / 2, y: (work.height - h) / 2, w, h };
+    }
+
+    // ---- Selecting (mouse + touch via pointer events) ----
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      return {
+        x: Math.min(Math.max((e.clientX - r.left) * canvas.width / r.width, 0), canvas.width),
+        y: Math.min(Math.max((e.clientY - r.top) * canvas.height / r.height, 0), canvas.height)
+      };
+    }
+    canvas.addEventListener('pointerdown', e => {
+      if (!work.width) return;
+      canvas.setPointerCapture(e.pointerId);
+      const p = pos(e);
+      drag = { sx: p.x, sy: p.y };
+      if (fixed) { placeFixed(p); return; }
+      sel = null;
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const p = pos(e);
+      if (fixed) { placeFixed(p); return; }
+      const dirX = p.x >= drag.sx ? 1 : -1, dirY = p.y >= drag.sy ? 1 : -1;
+      const maxW = dirX > 0 ? canvas.width - drag.sx : drag.sx;
+      const maxH = dirY > 0 ? canvas.height - drag.sy : drag.sy;
+      let w = Math.min(Math.abs(p.x - drag.sx), maxW), h;
+      if (ratio) {
+        h = w / ratio;
+        if (h > maxH) { h = maxH; w = h * ratio; }
+      } else {
+        h = Math.min(Math.abs(p.y - drag.sy), maxH);
+      }
+      sel = { x: dirX > 0 ? drag.sx : drag.sx - w, y: dirY > 0 ? drag.sy : drag.sy - h, w, h };
+      draw();
+    });
+    const endDrag = () => { drag = null; };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+
+    // ---- Crop ----
+    $('cropBtn').addEventListener('click', () => {
+      if (!sel || sel.w < 1 || sel.h < 1) { $('info').textContent = 'Select an area first (drag on the image or pick a ratio).'; return; }
+      const x = Math.round(sel.x), y = Math.round(sel.y);
+      const w = Math.max(1, Math.round(sel.w)), h = Math.max(1, Math.round(sel.h));
+      const snapshot = document.createElement('canvas');
+      snapshot.width = work.width; snapshot.height = work.height;
+      snapshot.getContext('2d').drawImage(work, 0, 0);
+      setWork(w, h, c => c.drawImage(snapshot, x, y, w, h, 0, 0, w, h));
+    });
+    $('resetBtn').addEventListener('click', resetToOriginal);
+
+    // ---- Resize ----
+    const clamp = v => Math.min(8000, Math.max(1, Math.round(Number(v)) || 1));
+    $('w').addEventListener('input', () => {
+      if ($('lock').checked && work.width) $('h').value = clamp($('w').value * work.height / work.width);
+    });
+    $('h').addEventListener('input', () => {
+      if ($('lock').checked && work.height) $('w').value = clamp($('h').value * work.width / work.height);
+    });
+    $('resizeBtn').addEventListener('click', () => {
+      const w = clamp($('w').value), h = clamp($('h').value);
+      const snapshot = document.createElement('canvas');
+      snapshot.width = work.width; snapshot.height = work.height;
+      snapshot.getContext('2d').drawImage(work, 0, 0);
+      setWork(w, h, c => c.drawImage(snapshot, 0, 0, w, h));
+    });
+
+    // ---- Download (same format + original filename) ----
+    function refreshDownload() {
+      const link = $('downloadLink');
+      link.classList.add('disabled');
+      work.toBlob(blob => {
+        if (!blob) return;
+        if (blobUrl) URL.revokeObjectURL(blobUrl);
+        blobUrl = URL.createObjectURL(blob);
+        link.href = blobUrl;
+        link.download = meta.name;
+        link.classList.remove('disabled');
+        $('dlInfo').textContent = `${meta.name} · ${work.width} × ${work.height} · ${(blob.size / 1024).toFixed(1)} KB`;
+      }, meta.mime, 0.92);
+    }
+  </script>
 </body>
 </html>
